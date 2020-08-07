@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"github.com/dgraph-io/badger/v2"
+	"time"
 )
 
 type badgerClient struct {
@@ -12,7 +13,7 @@ type badgerClient struct {
 
 func (client *badgerClient) printAllData() {
 	// Your code here…
-	client.View(func(txn *badger.Txn) error {
+	err := client.View(func(txn *badger.Txn) error {
 		// Your code here…
 		opts := badger.DefaultIteratorOptions
 		opts.PrefetchSize = 10
@@ -34,29 +35,39 @@ func (client *badgerClient) printAllData() {
 		}
 		return nil
 	})
+	if err != nil {
+		panic(err)
+	}
 }
 
 func (client *badgerClient) write(key string, value int) {
-	client.Update(func(txn *badger.Txn) error {
+	fmt.Printf("Got write call: (%s, %d)\n", key, value)
+	err := client.Update(func(txn *badger.Txn) error {
 		buffer := make([]byte, 8)
 		binary.LittleEndian.PutUint64(buffer, uint64(value))
 
 		entry := badger.NewEntry([]byte(key), buffer)
 		return txn.SetEntry(entry)
 	})
+	if err != nil {
+		panic(err)
+	}
 }
 
-func (client *badgerClient) readButWriteRegardlessOfRead(key string, value int) {
-	client.Update(func(txn *badger.Txn) error {
+func (client *badgerClient) readButWriteRegardlessOfRead(key string, value int, sleepTimeSeconds int) error {
+	fmt.Printf("Calling function with key: %s, value: %d\n", key, value)
+	err := client.Update(func(txn *badger.Txn) error {
 		if item, err := txn.Get([]byte(key)); err == nil {
 			res, _ := item.ValueCopy(nil)
-			println("Read value: " + string(res))
+			num := int64(binary.LittleEndian.Uint64(res))
+			fmt.Printf("Read value(%s): %d\n", key, num)
 		}
-
+		time.Sleep(time.Second * time.Duration(sleepTimeSeconds))
 		buffer := make([]byte, 8)
 		binary.LittleEndian.PutUint64(buffer, uint64(value))
 
 		entry := badger.NewEntry([]byte(key), buffer)
 		return txn.SetEntry(entry)
 	})
+	return err
 }
