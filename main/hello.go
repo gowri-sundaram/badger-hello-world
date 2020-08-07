@@ -9,14 +9,33 @@ import (
 func main() {
 	// Open the Badger database located in the /tmp/badger directory.
 	// It will be created if it doesn't exist.
-	db, err := badger.Open(badger.DefaultOptions("/tmp/temp"))
+	options := badger.DefaultOptions("/tmp/temp").WithNumVersionsToKeep(1000)
+	db, err := badger.Open(options)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
-
 	client := &badgerClient{db}
-	client.printAllData()
-	client.write("okabe",123)
+	testBasicEtag(client)
+	//testReadAndThenUpdate(client)
+}
+
+// Nothing happens here. You can do whatever you want, all
+// Badger is doing is maintaining versions as an incremental meta.
+func testBasicEtag(client *badgerClient) {
+	for i := 0; i<10; i++ {
+		//client.printAllData()
+		client.write("lol", i * 1000)
+	}
 	client.printAllData()
 }
+
+// Read here is just for the sake of it.
+// Otherwise, all Badger is doing is maintaining versions as an incremental meta.
+//func testReadAndThenUpdate(client *badgerClient) {
+//	for i := 0; i<10; i++ {
+//		//client.printAllData()
+//		client.readButWriteRegardlessOfRead("metta", i * 1000)
+//	}
+//	client.printAllData()
+//}
