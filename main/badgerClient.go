@@ -46,19 +46,17 @@ func (client *badgerClient) write(key string, value int) {
 	})
 }
 
-//func (client *badgerClient) readButWriteRegardlessOfRead(key string, value int) {
-//	client.Update(func(txn *badger.Txn) error {
-//		if item, err := txn.Get([]byte(key)); err == nil {
-//			res, _ := item.ValueCopy(nil)
-//			println("Read value: " + string(res))
-//		} else {
-//			return err
-//		}
-//
-//		buffer := make([]byte, 8)
-//		binary.LittleEndian.PutUint64(buffer, uint64(value))
-//
-//		entry := badger.NewEntry([]byte(key), buffer)
-//		return txn.SetEntry(entry)
-//	})
-//}
+func (client *badgerClient) readButWriteRegardlessOfRead(key string, value int) {
+	client.Update(func(txn *badger.Txn) error {
+		if item, err := txn.Get([]byte(key)); err == nil {
+			res, _ := item.ValueCopy(nil)
+			println("Read value: " + string(res))
+		}
+
+		buffer := make([]byte, 8)
+		binary.LittleEndian.PutUint64(buffer, uint64(value))
+
+		entry := badger.NewEntry([]byte(key), buffer)
+		return txn.SetEntry(entry)
+	})
+}

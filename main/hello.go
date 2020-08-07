@@ -16,8 +16,8 @@ func main() {
 	}
 	defer db.Close()
 	client := &badgerClient{db}
-	testBasicEtag(client)
-	//testReadAndThenUpdate(client)
+	//testBasicEtag(client)
+	testReadAndThenUpdate(client)
 }
 
 // Nothing happens here. You can do whatever you want, all
@@ -32,10 +32,10 @@ func testBasicEtag(client *badgerClient) {
 
 // Read here is just for the sake of it.
 // Otherwise, all Badger is doing is maintaining versions as an incremental meta.
-//func testReadAndThenUpdate(client *badgerClient) {
-//	for i := 0; i<10; i++ {
-//		//client.printAllData()
-//		client.readButWriteRegardlessOfRead("metta", i * 1000)
-//	}
-//	client.printAllData()
-//}
+func testReadAndThenUpdate(client *badgerClient) {
+	for i := 0; i<10; i++ {
+		//client.printAllData()
+		client.readButWriteRegardlessOfRead("go", i * 1000)
+	}
+	client.printAllData()
+}
