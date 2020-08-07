@@ -38,7 +38,7 @@ func testBasicEtag(client *badgerClient) {
 }
 
 // Read here is just dummy read to test semantics of Read/Write transactions.
-// So here the last write succeeds, and all other writes fail deterministically.
+// Writes fail with conflict non deterministically.
 func testReadAndThenUpdate(client *badgerClient) {
 	var wg sync.WaitGroup
 	for i := 0; i<10; i++ {
@@ -56,7 +56,7 @@ func testReadAndThenUpdate(client *badgerClient) {
 }
 
 // Read here is just dummy read to test semantics of Read/Write transactions.
-// Writes fail with conflict non deterministically.
+// So here the last write succeeds, and all other writes fail deterministically.
 func testReadAndThenUpdateWithSleep(client *badgerClient) {
 	var wg sync.WaitGroup
 	for i := 0; i<10; i++ {
